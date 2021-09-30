@@ -1,0 +1,34 @@
+- Can a user use already used tokens and work with them?
+
+- Types of resources-
+	- Search
+	- sObjects
+	- query
+	- recent
+
+- Requests
+	1. Get the Salesforce Version
+	2. Get a List of Resources
+	3. Get a List of Available Objects(sObjects)
+	4. Get Basic Object Information
+	5. Get a List of Fields
+	6. Execute a SOQL Query
+
+- Design
+	1. Stateless
+
+- User
+	- Stateful
+		- Token provided from external sources
+	- Stateless
+		- Obtain tokens and do the proc
+
+- Could u?
+	- Expose all avbl api as REST apis to be consumed - Sort of like universal consumer
+	- 
+
+- Auth
+	- OAuth 2.0 Web-Server	-> User Login required
+	- Mobile-Agent			-> User authenticates and authorses flow
+	- JWT based auth		-> Cud be done, reqs a signed JWT
+	- OAuth user-pwd flow	-> The common one
