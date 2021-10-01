@@ -6,5 +6,5 @@ import java.util.Map;
 
 public interface Reader {
 
-    ReaderOutput read(Map<String, Object> param);
+    ReaderOutput read(Map<String, Object> param) throws Exception;
 }

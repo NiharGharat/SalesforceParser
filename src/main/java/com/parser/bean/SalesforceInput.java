@@ -12,8 +12,8 @@ public class SalesforceInput {
 
     private String tableName;
     private String pwd;
-    private String uName;
-    private String apiTypeRequested;
+    private String userName;
+    private ApiTypes apiTypeRequested;
     private String baseUrl;
 
 }
