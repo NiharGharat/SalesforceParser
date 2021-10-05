@@ -1,7 +1,13 @@
 package com.parser.util;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.parser.bean.MandatoryParamException;
+import com.parser.bean.ResponseToken;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.Map;
+import java.util.Set;
 
 public class CommonUtil {
 
@@ -15,4 +21,5 @@ public class CommonUtil {
             throw new MandatoryParamException(errorMsg);
         }
     }
+
 }

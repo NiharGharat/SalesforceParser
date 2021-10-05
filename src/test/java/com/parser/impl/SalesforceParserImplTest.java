@@ -1,4 +1,4 @@
-package com.parser;
+package com.parser.impl;
 
 public class SalesforceParserImplTest {
 

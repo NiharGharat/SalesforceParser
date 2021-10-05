@@ -15,7 +15,7 @@ public class SalesforceInputUtil {
     public static SalesforceInput createInput(Map<String, Object> param) {
         logger.info(">> createInput()");
         SalesforceInput salesforceInput = SalesforceInput.builder()
-                        .apiTypeRequested(ApiTypes.valueOf(param.getOrDefault(Constants.keyApiTypeRequest, ApiTypes.USER_PWD_API).toString().toUpperCase()))
+                .apiTypeRequested(ApiTypes.valueOf(param.getOrDefault(Constants.keyApiTypeRequest, ApiTypes.USER_PWD_API).toString().toUpperCase()))
                 .baseUrl(param.getOrDefault(Constants.keyBaseUrl, Constants.DEFAULT_LOGIN_URL).toString())
                 .pwd(param.getOrDefault(Constants.keyPassword, "").toString())
                 .tableName(param.get(Constants.keyTableName).toString())

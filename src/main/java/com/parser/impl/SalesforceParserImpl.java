@@ -9,10 +9,11 @@ import com.parser.com.parser.intf.Writer;
 import com.parser.constants.Constants;
 import com.parser.util.CommonUtil;
 import com.parser.util.SalesforceInputUtil;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Map;
 
 public class SalesforceParserImpl implements Reader, Writer {
@@ -44,8 +45,8 @@ public class SalesforceParserImpl implements Reader, Writer {
      * @throws MandatoryParamException -
      */
     @Override
-    public ReaderOutput read(Map<String, Object> param) throws MandatoryParamException {
-        logger.info(">> read(param)");
+    public ReaderOutput read(Map<String, Object> param) throws Exception {
+        logger.debug(">> read(param)");
         // Map the params to salesforceInput class
         SalesforceInput salesforceInput = SalesforceInputUtil.createInput(param);
         // Verify min inputs required
@@ -54,29 +55,43 @@ public class SalesforceParserImpl implements Reader, Writer {
         logInputs(salesforceInput);
         // Pass the input to dao and get result class
         ReaderOutput readerOutput = dao.readDao(salesforceInput);
-        logger.info("<< read(param)");
+        logger.debug("<< read(param)");
         return readerOutput;
     }
 
     private void logInputs(SalesforceInput salesforceInput) {
-        logger.info(">> logInputs(salesforceInput)");
-        logger.info("BaseUrl {}", salesforceInput.getBaseUrl());
-        logger.info("ApiType {}", salesforceInput.getApiTypeRequested());
-        logger.info("TableName {}", salesforceInput.getTableName());
-        logger.info("UserName {}", salesforceInput.getUserName());
-        logger.info("<< logInputs(salesforceInput)");
+        logger.debug(">> logInputs(SalesforceInput)");
+        logger.debug("BaseUrl {}", salesforceInput.getBaseUrl());
+        logger.debug("ApiType {}", salesforceInput.getApiTypeRequested());
+        logger.debug("TableName {}", salesforceInput.getTableName());
+        logger.debug("UserName {}", salesforceInput.getUserName());
+        logger.debug("<< logInputs(SalesforceInput)");
     }
 
-    private void verifyInputs(SalesforceInput salesforceInput) throws MandatoryParamException {
-        logger.info(">> verifyInputs(salesforceInput)");
+    /**
+     * A method to verify whether the input has necessary params
+     * @param salesforceInput
+     * Contians at least
+     * 1. {@link ApiTypes} - which type of api is needed to be used
+     * 2.
+     * @throws MandatoryParamException
+     */
+    public void verifyInputs(SalesforceInput salesforceInput) throws MandatoryParamException {
+        logger.debug(">> verifyInputs(SalesforceInput)");
         if (ApiTypes.USER_PWD_API.equals(salesforceInput.getApiTypeRequested())) {
             CommonUtil.checkParamForBlank(Constants.keyPassword, salesforceInput.getPwd());
             CommonUtil.checkParamForBlank(Constants.keyUsername, salesforceInput.getUserName());
+            CommonUtil.checkParamForBlank(Constants.keyBaseUrl, salesforceInput.getBaseUrl());
+            if (!salesforceInput.getBaseUrl().endsWith(".com")) {
+                // Incorrect format
+                String errorMsg = String.format("Base url needs strictly in the form %s", Constants.verifyValidBaseUrlForm);
+                throw new IllegalArgumentException(errorMsg);
+            }
+            CommonUtil.checkParamForBlank(Constants.keyTableName, salesforceInput.getTableName());
         } else {
             // Other specific logging goes here
+            // All other specific api requirements here, haven't filled any yet
         }
-        CommonUtil.checkParamForBlank(Constants.keyBaseUrl, salesforceInput.getBaseUrl());
-        CommonUtil.checkParamForBlank(Constants.keyTableName, salesforceInput.getTableName());
-        logger.info("<< verifyInputs(salesforceInput)");
+        logger.debug("<< verifyInputs(SalesforceInput)");
     }
 }

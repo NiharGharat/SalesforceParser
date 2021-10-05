@@ -15,5 +15,9 @@ public class SalesforceInput {
     private String userName;
     private ApiTypes apiTypeRequested;
     private String baseUrl;
+    // Aka consumer-key
+    private String clientId;
+    // Aka consumer-secret
+    private String clientSecret;
 
 }
