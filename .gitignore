@@ -24,3 +24,7 @@ hs_err_pid*
 
 *.idea
 configureEnv.sh
+SalesforceDoc
+op*
+target
+dump

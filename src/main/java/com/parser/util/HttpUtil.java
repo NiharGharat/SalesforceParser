@@ -1,6 +1,7 @@
 package com.parser.util;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -29,6 +30,20 @@ public class HttpUtil {
         final StringEntity entity = new StringEntity(bodyPayload);
         httpPost.setEntity(entity);
         HttpResponse response = httpClient.execute(httpPost);
+        logger.info("Status of request is {}", response.getStatusLine().getStatusCode());
+
+        logger.debug("<< doPost(String baseUrl, Map<String, String> headers, String bodyPayload)");
+        return response;
+    }
+
+    public static HttpResponse doGet(String baseUrl, Map<String, String> headers) throws URISyntaxException, IOException {
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        URI salesforceUri = new URI(baseUrl);
+        HttpGet httpGet = new HttpGet(salesforceUri);
+        for (Map.Entry<String, String> eachHeader : headers.entrySet()) {
+            httpGet.addHeader(eachHeader.getKey(), eachHeader.getValue());
+        }
+        HttpResponse response = httpClient.execute(httpGet);
         logger.info("Status of request is {}", response.getStatusLine().getStatusCode());
 
         logger.debug("<< doPost(String baseUrl, Map<String, String> headers, String bodyPayload)");

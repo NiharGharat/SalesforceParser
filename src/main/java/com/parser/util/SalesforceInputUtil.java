@@ -3,6 +3,7 @@ package com.parser.util;
 import com.parser.bean.ApiTypes;
 import com.parser.bean.SalesforceInput;
 import com.parser.constants.Constants;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,12 +17,17 @@ public class SalesforceInputUtil {
         logger.info(">> createInput()");
         SalesforceInput salesforceInput = SalesforceInput.builder()
                 .apiTypeRequested(ApiTypes.valueOf(param.getOrDefault(Constants.keyApiTypeRequest, ApiTypes.USER_PWD_API).toString().toUpperCase()))
-                .baseUrl(param.getOrDefault(Constants.keyBaseUrl, Constants.DEFAULT_LOGIN_URL).toString())
-                .pwd(param.getOrDefault(Constants.keyPassword, "").toString())
+                .baseUrl(param.getOrDefault(Constants.keyBaseUrl, Constants.DEFAULT_VALUE_LOGIN_URL).toString())
+                .pwdSecurityToken(param.getOrDefault(Constants.keyPassword, "").toString())
                 .tableName(param.get(Constants.keyTableName).toString())
                 .userName(param.getOrDefault(Constants.keyUsername, "").toString())
                 .build();
         logger.info("<< createInput()");
         return salesforceInput;
+    }
+
+    // Could be like user specified, or get via version api, or use code defined version
+    public static String getVersion(SalesforceInput salesforceInput) {
+        return StringUtils.isBlank(salesforceInput.getVersion()) ? Constants.DEFAULT_VALUE_VERSION : salesforceInput.getVersion();
     }
 }
