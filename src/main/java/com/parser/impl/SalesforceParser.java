@@ -3,6 +3,7 @@ package com.parser.impl;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.parser.bean.MandatoryParamException;
 import com.parser.bean.ReaderOutput;
 import com.parser.bean.SalesforceInput;
@@ -25,6 +26,7 @@ import java.util.*;
  * be placed in the dao
  * The service layer will in turn call this Parser
  *
+ * The impl can be injected to the service layer if some other impl is required
  */
 public class SalesforceParser {
 
@@ -38,23 +40,31 @@ public class SalesforceParser {
     public ReaderOutput readDao(SalesforceInput salesforceInput) throws Exception {
         logger.info(">> readDao(salesforceInput)");
         // Map as other params can be required later
-        HashMap<String, String> response = getToken(salesforceInput);
-        validateToken(response);
+        HashMap<String, String> tokens = getToken(salesforceInput);
+        validateToken(tokens);
         logger.info("Response token verified correctly, proceeding to reading");
 
-        List<List<String>> records = readTable(response, salesforceInput);
+        List<List<String>> records = readTable(tokens, salesforceInput);
         logger.info("All records loaded");
-        //ReaderOutput readerOutput = createOutput(records);
+
+        ReaderOutput readerOutput = createOutput(records);
         logger.info("Output dto created");
 
         logger.info("<< readDao(salesforceInput)");
-        return null;
+        return readerOutput;
     }
 
-    private void validateToken(HashMap response) throws MandatoryParamException {
+    private ReaderOutput createOutput(List<List<String>> records) {
+        ReaderOutput readerOutput = new ReaderOutput();
+        readerOutput.setRowsResult(records);
+        readerOutput.setDataTypes(null);
+        return readerOutput;
+    }
+
+    private void validateToken(HashMap tokens) throws MandatoryParamException {
         // Others are not used
-        CommonUtil.checkParamForBlank(Constants.keyAccessToken, (String) response.get(Constants.keyAccessToken));
-        CommonUtil.checkParamForBlank(Constants.keyInstanceUrl, (String) response.get(Constants.keyInstanceUrl));
+        CommonUtil.checkParamForBlank(Constants.keyAccessToken, (String) tokens.get(Constants.keyAccessToken));
+        CommonUtil.checkParamForBlank(Constants.keyInstanceUrl, (String) tokens.get(Constants.keyInstanceUrl));
     }
 
     /*
@@ -76,6 +86,7 @@ public class SalesforceParser {
     4. Return
      */
     private List<List<String>> readTable(HashMap<String, String> tokens, SalesforceInput salesforceInput) throws Exception {
+        logger.info(">> readTable(HashMap<String, String>, SalesforceInput)");
         final String version = SalesforceInputUtil.getVersion(salesforceInput);
         salesforceInput.setVersion(version);
 
@@ -93,7 +104,7 @@ public class SalesforceParser {
 
         // execute request and parse tokens
         List<List<String>> result = fetchAndCreateResponse(tokens, salesforceInput);
-        logger.info("Result created size is {}", result.size());
+        logger.info("Result created size with header is {}", result.size());
         return result;
     }
 
@@ -105,8 +116,8 @@ public class SalesforceParser {
 
         // create correct query
         final String queryToUse = getQuery(tokens, salesforceInput);
-        final String httpEscapedSoqlQuery = CommonUtil.escapeStringHttpUrl(queryToUse);
-        entireQueryUrl.append(salesforceInput.getVersion()).append("/query?q=").append(httpEscapedSoqlQuery);
+        //final String httpEscapedSoqlQuery = CommonUtil.escapeStringHttpUrl(queryToUse);
+        entireQueryUrl.append(salesforceInput.getVersion()).append("/query?q=").append(queryToUse);
 
         logger.info("Url created is {}", entireQueryUrl);
         // Create response
@@ -116,6 +127,7 @@ public class SalesforceParser {
         while (!isDone) {
             JsonObject response = salesforceDao.executeQuery(entireQueryUrl, tokens, salesforceInput);
             entireQueryUrl = parseResponse(response, result);
+            // Implicit that isDone false means next url will be present
             isDone = StringUtils.isBlank(entireQueryUrl.toString());
             logger.debug("Iteration {} completed, completion status {}", itr++, isDone);
         }
@@ -143,7 +155,14 @@ public class SalesforceParser {
                 if (isFirst) {
                     headers.add(eachEntry.getKey());
                 }
-                final JsonElement value = eachEntry.getValue().getAsJsonPrimitive();
+                JsonElement value = null;
+                if (eachEntry.getValue() != null && eachEntry.getValue() instanceof JsonPrimitive) {
+                    value = eachEntry.getValue().getAsJsonPrimitive();
+                } else if (eachEntry.getValue() == null || !(eachEntry.getValue() instanceof JsonPrimitive)) {
+                    value = null;
+                } else {
+                    throw new RuntimeException("Unhandled case for json value");
+                }
                 eachRow.add(value != null ? value.getAsString() : null);
             }
             if (isFirst) {

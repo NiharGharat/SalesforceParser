@@ -17,15 +17,19 @@ import java.util.Map;
 
 public class SalesforceReaderService implements Reader, Writer {
 
-    private SalesforceParser parser;
-    private static Logger logger = LoggerFactory.getLogger(SalesforceReaderService.class);
+    private final SalesforceParser parser;
+    private static final Logger logger = LoggerFactory.getLogger(SalesforceReaderService.class);
     public SalesforceReaderService() {
         this.parser = new SalesforceParser();
     }
 
+    public SalesforceReaderService(SalesforceParser salesforceParser) {
+        this.parser = salesforceParser;
+    }
+
     @Override
     public void write(ReaderOutput data) {
-        return;
+        // TODO
     }
 
     /**
@@ -70,10 +74,10 @@ public class SalesforceReaderService implements Reader, Writer {
     /**
      * A method to verify whether the input has necessary params
      * @param salesforceInput
-     * Contians at least
+     * Contains at least
      * 1. {@link ApiTypes} - which type of api is needed to be used
      * 2.
-     * @throws MandatoryParamException
+     * @throws MandatoryParamException - parameters required for eg - userName, pwd api
      */
     public void verifyInputs(SalesforceInput salesforceInput) throws MandatoryParamException {
         logger.debug(">> verifyInputs(SalesforceInput)");
@@ -89,10 +93,10 @@ public class SalesforceReaderService implements Reader, Writer {
             if (StringUtils.isBlank(salesforceInput.getTableName()) && StringUtils.isBlank(salesforceInput.getTableApiName())) {
                 CommonUtil.checkParamForBlank(Constants.keyTableName, salesforceInput.getTableName());
             }
-        } else {
+        } /*else {
             // Other specific logging goes here
             // All other specific api requirements here, haven't filled any yet
-        }
+        }*/
         logger.debug("<< verifyInputs(SalesforceInput)");
     }
 }

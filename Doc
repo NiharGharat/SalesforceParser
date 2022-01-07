@@ -12,6 +12,8 @@
 	4. Get Basic Object Information
 	5. Get a List of Fields
 	6. Execute a SOQL Query
+	7. Describe on a tableName
+	8. Check if tableName is valid, if not return valid one
 
 > Design
 	1. Stateless
@@ -34,8 +36,7 @@
 	- JWT based auth		-> Cud be done, reqs a signed JWT
 	- OAuth user-pwd flow	-> The common one
 
-> Curls
-curl https://nonstd-super-company-dev-ed.lightning.force.com/services/oauth2/token -d 'grant_type=password' -d 'client_id=consumer-key' -d 'client_secret=consumer-secret' -d 'username=my-login@domain.com' -d 'password=my-password'
 
 > Test Resources
 1. Test50Col1000Row__c
+2. Test50Col20000Row__c
